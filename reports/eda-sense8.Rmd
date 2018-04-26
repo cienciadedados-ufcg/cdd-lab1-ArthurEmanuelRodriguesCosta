@@ -21,6 +21,14 @@ Analisaremos os episódios da falecida série Sense8.
 Houve duas temporadas: quais foram os melhores episódios? A melhor temporada?
 
 ```{r}
+data <- read_csv(here("data/series_from_imdb.csv"), 
+                    progress = FALSE,
+                    col_types = cols(.default = col_double(), 
+                                     series_name = col_character(), 
+                                     episode = col_character(), 
+                                     url = col_character(),
+                                     season = col_character()))
+
 episodes = read_csv(here("data/series_from_imdb.csv"), 
                     progress = FALSE,
                     col_types = cols(.default = col_double(), 
@@ -28,7 +36,9 @@ episodes = read_csv(here("data/series_from_imdb.csv"),
                                      episode = col_character(), 
                                      url = col_character(),
                                      season = col_character())) %>% 
-    filter(series_name == "Sense8") 
+    filter(series_name %in% c("Vikings", "Stranger Things", "Game of Thrones"))
+
+
 ```
 
 ## Quantas avaliações temos por episódio? 
@@ -37,17 +47,23 @@ Cada episódio foi avaliado por um número diferente de usuários do IMDB. Vejam
 
 ```{r}
 episodes %>% 
-    ggplot(aes(x = season, y = user_votes)) +
+    ggplot(aes(x = series_ep, y = user_votes)) +
     geom_violin() + 
-    geom_jitter(width = .07) 
+    geom_jitter(width = .07) +
+    facet_wrap(~ series_name)
 ```
 
 
 ```{r}
 episodes %>% 
-    ggplot(aes(x = season_ep, y = user_votes))  + 
-    geom_line() + 
-    facet_wrap(~ season)
+    filter(series_name == "Vikings") %>% 
+    ggplot(aes(x = series_ep, y = user_votes, color = season)) + 
+    geom_line()
+
+episodes %>% 
+    filter(series_name == "Game of Thrones") %>% 
+    ggplot(aes(x = series_ep, y = user_votes, color = season)) + 
+    geom_line()
                
 ```
 
