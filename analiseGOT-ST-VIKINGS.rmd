@@ -1,0 +1,105 @@
+---
+title: "Análise sobre séries e suas avaliações no IMDB"
+author: "Arthur Costa"
+date: "26 de abril de 2018"
+output: html_document
+---
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(here)
+theme_set(theme_bw())
+```
+
+Analisaremos as séries Game of Thrones, Stranger Things e Vikings. O relatório está dividido em seções, as quais têm como objetivo responder perguntas.
+
+```{r}
+data <- read_csv(here("data/series_from_imdb.csv"), 
+                    progress = FALSE,
+                    col_types = cols(.default = col_double(), 
+                                     series_name = col_character(), 
+                                     episode = col_character(), 
+                                     url = col_character(),
+                                     season = col_character()))
+
+episodes = read_csv(here("data/series_from_imdb.csv"), 
+                    progress = FALSE,
+                    col_types = cols(.default = col_double(), 
+                                     series_name = col_character(), 
+                                     episode = col_character(), 
+                                     url = col_character(),
+                                     season = col_character())) %>% 
+    filter(series_name %in% c("Vikings", "Stranger Things", "Game of Thrones"))
+
+episodes
+```
+
+# Qual das séries que você escolheu é mais bem avaliada no IMDB? A diferença é grande? Pequena? Muda de acordo com as temporadas da série?  
+
+Primeiro, podemos observar como as avaliações de cada série comportam-se ao longo dos episódios. Isto ajudará como uma introdução a distribuição da variável user_rating.
+
+```{r}
+episodes %>% 
+    ggplot(aes(x = series_ep, y = user_rating)) + 
+    geom_line() +
+    facet_wrap(~ series_name)
+               
+```
+
+Ao observar os gráficos acima, pode-se extrair algumas informações que serão valiosas para responder a pergunta desta seção. Primeiramente, a série Stranger Things não possui tantos episódios quanto as outras, o que pode não apresentar resultados com grande significado estatístico.
+
+Além disso, as séries Game of Thrones e Vikings possuem uma quantidade relativamente próxima de episódios. Se observarmos as distribuições, podemos perceber que a linha de Game of Thrones não apresenta uma tendência de subida, mas sim uma grande quantidade de variações de subidas e descidas bruscas.
+
+Por outro lado, Stranger Things e Vikings apresentam uma tendência de subida em suas avaliações. Sendo a primeira uma subida com poucas variações de descidas e a segunda mais variada, aproximando sua forma a curva de Game of Thrones, porém com tendência geral de subida.
+
+De forma geral, nota-se que Stranger Things possui uma melhor avaliação média. Em seguida temos Game of Thrones e, por fim, Vikings. Porém, isso é uma intuição retirada a partir da visualização, posteriormente isso será testado com o cálculo da média de suas avaliações propriamente dita.
+
+Além disso, pode-se observar essas curvas adicionando a variável temporada em cada uma delas.
+
+```{r}
+episodes %>% 
+    ggplot(aes(x = series_ep, y = user_rating, color = season)) + 
+    geom_line() +
+    geom_point() +
+    facet_wrap(~ series_name)
+```
+
+Com as visualizações acima, podemos notar que as avaliações mudam de acordo com as temporadas. Ademais, pode-se destacar que, em Game of Thrones e Vikings, com o passar das temporadas, as avaliações começam a variar cada vez mais.
+
+
+Por fim, podemos calcular a média das avaliações de cada episódio para obtermos um número que represente a avaliação da série, no geral. Logo:
+
+```{r}
+episodes %>% 
+    group_by(series_name) %>% 
+    summarise(media = mean(user_rating))
+```
+
+Desse modo, percebe-se que as nossas intuições extraídas através das visualizações mostraram-se verdade.
+
+# Qual das séries que você escolheu tem episódios de qualidade mais irregular segundo o IMDB? A diferença é grande? Pequena?
+
+Para respoder a essa pergunta, podemos usar um boxplot para observar como as avaliações se comportam, de forma geral. Além disso, adicionaremos pontos para representarem cada episódio.
+
+Vale salientar que, a partir da pergunta anterior, podemos ter uma intuição de que Game of Thrones terá uma variação maior nas suas avaliações, devido ao seu gráfico de linha ser cheio de altos e baixos.
+
+```{r}
+episodes %>% 
+    ggplot(aes(x = series_name, y = user_rating)) + 
+    geom_boxplot(width = .5, outlier.color = NA) +   
+    geom_jitter(width = .1, size = 2, alpha = .5, color = "red")
+```
+
+Logo, podemos atestar que o formato mais alongado do boxplot da série Game of Thrones, bem como a distribuição dos seus pontos relativos ao eixo das avaliações aparenta ser a maior das 3. Stranger Things mostra pouca variação, enquanto Vikings também possui episódios que diferem bastante entre si. Todavia, percebe-se que os pontos de Vikings estão menos dispersos que o de Game of Thrones.
+
+Além de usarmos as ferramentas visuais para atestarmos nossa hipótese de que Game of Thrones é a série que mais varia, podemos usar a medida estatística desvio padrão, que calcula o quanto os valores de uma variável estão distantes da média.
+
+```{r}
+episodes %>% 
+    group_by(series_name) %>% 
+    summarise(desvio_padrao = sd(user_rating))
+```
+
+Com isso, podemos validar a nossa hipótese. E perceber que, como apontado na primeira seção, Vikings possui uma irregularidade em suas avaliações que se aproxima mais de Game of Thrones. Não obstante, Stranger Things possui a menor irregularidade em suas avaliações.
+
+Por fim, vale salientar a importânica da ferramenta visual, dado que todos os nossos palpites foram confirmados pelas medidas estatísticas.
+
