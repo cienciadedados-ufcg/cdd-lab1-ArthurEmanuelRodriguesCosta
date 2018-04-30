@@ -1,0 +1,46 @@
+---
+title: "Analise Checkpoint 3"
+author: "Arthur Costa"
+date: "30 de abril de 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+theme_set(theme_bw())
+
+data <- read_csv(here("data/series_from_imdb.csv"), 
+                    progress = FALSE,
+                    col_types = cols(.default = col_double(), 
+                                     series_name = col_character(), 
+                                     episode = col_character(), 
+                                     url = col_character(),
+                                     season = col_character()))
+```
+
+#Qual a distribuição das avaliações dos episódios das top-5 séries mais longas?
+
+```{r}
+
+top.5 <- data %>% 
+            group_by(series_name) %>% 
+            summarise(n = n())
+
+top.5 <- head(arrange(top.5, desc(n)), 15) %>% select(series_name)
+top.5
+
+episodes <- data %>% 
+                filter(series_name %in% top.5$series_name)
+
+episodes %>% 
+    group_by(series_name) %>% 
+    mutate(correlacao = cor(series_ep, user_rating)) %>% 
+    ggplot(aes(x = series_ep, y = user_rating)) + 
+    geom_line(alpha = .4) + geom_smooth(se = F) +
+    facet_wrap(~ reorder(series_name, correlacao))
+
+```
+
