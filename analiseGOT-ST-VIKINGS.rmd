@@ -4,6 +4,9 @@ author: "Arthur Costa"
 date: "26 de abril de 2018"
 output: html_document
 ---
+
+>> Esse arquivo é um report; devia estar em `reports/`
+
 ```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(here)
@@ -13,14 +16,6 @@ theme_set(theme_bw())
 Analisaremos as séries Game of Thrones, Stranger Things e Vikings. O relatório está dividido em seções, as quais têm como objetivo responder perguntas.
 
 ```{r}
-data <- read_csv(here("data/series_from_imdb.csv"), 
-                    progress = FALSE,
-                    col_types = cols(.default = col_double(), 
-                                     series_name = col_character(), 
-                                     episode = col_character(), 
-                                     url = col_character(),
-                                     season = col_character()))
-
 episodes = read_csv(here("data/series_from_imdb.csv"), 
                     progress = FALSE,
                     col_types = cols(.default = col_double(), 
@@ -45,13 +40,15 @@ episodes %>%
                
 ```
 
-Ao observar os gráficos acima, pode-se extrair algumas informações que serão valiosas para responder a pergunta desta seção. Primeiramente, a série Stranger Things não possui tantos episódios quanto as outras, o que pode não apresentar resultados com grande significado estatístico.
+Ao observar os gráficos acima, pode-se extrair algumas informações que serão valiosas para responder a pergunta desta seção. Primeiramente, a série Stranger Things não possui tantos episódios quanto as outras, o que pode levar a resultados com pouca significância estatística.
 
 Além disso, as séries Game of Thrones e Vikings possuem uma quantidade relativamente próxima de episódios. Se observarmos as distribuições, podemos perceber que a linha de Game of Thrones não apresenta uma tendência de subida, mas sim uma grande quantidade de variações de subidas e descidas bruscas.
 
 Por outro lado, Stranger Things e Vikings apresentam uma tendência de subida em suas avaliações. Sendo a primeira uma subida com poucas variações de descidas e a segunda mais variada, aproximando sua forma a curva de Game of Thrones, porém com tendência geral de subida.
 
 De forma geral, nota-se que Stranger Things possui uma melhor avaliação média. Em seguida temos Game of Thrones e, por fim, Vikings. Porém, isso é uma intuição retirada a partir da visualização, posteriormente isso será testado com o cálculo da média de suas avaliações propriamente dita.
+
+>> Difícil ver a média. Talvez fosse uma boa plotá-la / calculá-la?
 
 Além disso, pode-se observar essas curvas adicionando a variável temporada em cada uma delas.
 
@@ -64,6 +61,8 @@ episodes %>%
 ```
 
 Com as visualizações acima, podemos notar que as avaliações mudam de acordo com as temporadas. Ademais, pode-se destacar que, em Game of Thrones e Vikings, com o passar das temporadas, as avaliações começam a variar cada vez mais.
+
+>> Legal a observação antes desse comentário. Que tal quantificá-la?
 
 
 Por fim, podemos calcular a média das avaliações de cada episódio para obtermos um número que represente a avaliação da série, no geral. Logo:
@@ -91,6 +90,8 @@ episodes %>%
 
 Logo, podemos atestar que o formato mais alongado do boxplot da série Game of Thrones, bem como a distribuição dos seus pontos relativos ao eixo das avaliações aparenta ser a maior das 3. Stranger Things mostra pouca variação, enquanto Vikings também possui episódios que diferem bastante entre si. Todavia, percebe-se que os pontos de Vikings estão menos dispersos que o de Game of Thrones.
 
+>> Seria uma boa quantificar o alongamento do boxplot com o IQR: vikings é maior ou menor que ST?
+
 Além de usarmos as ferramentas visuais para atestarmos nossa hipótese de que Game of Thrones é a série que mais varia, podemos usar a medida estatística desvio padrão, que calcula o quanto os valores de uma variável estão distantes da média.
 
 ```{r}
@@ -103,3 +104,4 @@ Com isso, podemos validar a nossa hipótese. E perceber que, como apontado na pr
 
 Por fim, vale salientar a importânica da ferramenta visual, dado que todos os nossos palpites foram confirmados pelas medidas estatísticas.
 
+>> No fundo, a medida quantifica uma impressão visual que você teve, mais do que validá-la ou não. 
